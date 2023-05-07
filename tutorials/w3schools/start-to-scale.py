@@ -1,4 +1,3 @@
-# LICENSE: See w3schools.com for license
 # This code and many values are adapted straight from the w3schools tutorial 
 # on Machine Learning in Python. Think of these as my notes on the tutorial.
 # https://www.w3schools.com/python/python_ml_getting_started.asp
@@ -7,6 +6,8 @@ import numpy
 from scipy import stats
 import matplotlib.pyplot as plt
 from sklearn.metrics import r2_score
+from sklearn import linear_model
+from sklearn.preprocessing import StandardScaler
 from warnings import simplefilter
 simplefilter(action='ignore', category=FutureWarning)
 
@@ -21,6 +22,7 @@ uniformDistribution = numpy.random.uniform(0.0, 5.0, 100000)
 normalDistribution = numpy.random.normal(5.0, 1.0, 100000) 
 
 # Some data to use
+car_data_file = "./car_data.csv"
 maximumWarpSpeed = numpy.random.uniform(5.0, 1.0, 10)
 maximumWarpSpeed.sort()
 normalX = numpy.random.normal(5.0, 1.0, 100000)
@@ -124,3 +126,22 @@ plt.ylabel('Quality of Code')
 print('Are they correlated? What\'s the R-squared value?')
 print('R-squared: ', r2_score(qualityOfCode, model(totalLinesOfCode)))
 plt.show()
+
+print('\nMultiple linear regression on some fake car data\n')
+df = pandas.read_csv(car_data_file)
+X = df[['Weight', 'Volume']]
+y = df['CO2']
+regr = linear_model.LinearRegression()
+regr.fit(X, y)
+predictedC02 = regr.predict([[2300, 1300]])
+print('Predicted C02 for a vehicle weighing 2300kg with a 1.3L engine: ', predictedC02)
+print('Coefficients: ', regr.coef_)
+
+print('\nMultiple linear regression but scaling the data first\n')
+scale = StandardScaler()
+scaledX = scale.fit_transform(X)
+regr = linear_model.LinearRegression()
+regr.fit(scaledX, y)
+scaled = scale.transform([[2300, 1300]])
+predictedC02 = regr.predict([scaled[0]])
+print('Predicted C02 for a vehicle weighing 2300kg with a 1.3L engine: ', predictedC02)
