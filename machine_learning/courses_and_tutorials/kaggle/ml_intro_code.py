@@ -1,10 +1,8 @@
-# LICENSE: see kaggle.com
 # Kaggle hosts ML/Data Science competitions to give people a chance to practice their skills
 # There are datasets and tutorials available for you to work through even without doing competitions
 # This code is from working through the Kaggle Intro to Machine Learning course
 # https://www.kaggle.com/learn/intro-to-machine-learning
 # The course is worthwhile and gives some practice using Pandas, SciKit-Learn, and Jupyter Notebooks
-
 import pandas as pd
 from sklearn.metrics import mean_absolute_error
 from sklearn.model_selection import train_test_split
