@@ -22,9 +22,10 @@
 import h5py
 import numpy as np
 import pandas as pd
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score, classification_report
 from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
 
 
 class LogisticRegressionGD:
@@ -282,3 +283,46 @@ def main():
 
 if __name__ == "__main__":
     main()
+
+
+# Logistic Regression in Practice
+#
+# We wouldn't normally implement our own Logistic Regression model from scratch. These are
+# solved problems and there are many libraries that provide implementations of Logistic
+# Regression. In this section, we'll use the scikit-learn library to train and evaluate a
+# Logistic Regression model on the cat/non-cat dataset.
+
+
+# Load H5 data
+def load_h5_data(train_filepath, test_filepath):
+    with h5py.File(train_filepath, "r") as f:
+        X_train = np.array(f["train_set_x"])
+        y_train = np.array(f["train_set_y"])
+
+    with h5py.File(test_filepath, "r") as f:
+        X_test = np.array(f["test_set_x"])
+        y_test = np.array(f["test_set_y"])
+
+    # Reshape the data to 2D: (number of images, image height * image width * number of color channels)
+    X_train = X_train.reshape(X_train.shape[0], -1)
+    X_test = X_test.reshape(X_test.shape[0], -1)
+
+    return X_train, X_test, y_train, y_test
+
+
+def train_and_evaluate_model(train_filepath, test_filepath):
+    X_train, X_test, y_train, y_test = load_h5_data(train_filepath, test_filepath)
+
+    # Initialize and train the model
+    model = LogisticRegression()
+    model.fit(X_train, y_train)
+
+    # Make predictions
+    y_pred = model.predict(X_test)
+
+    # Print the accuracy of the model
+    print(f"Accuracy: {accuracy_score(y_test, y_pred)}")
+
+
+def practical_example():
+    train_and_evaluate_model("./data/train_catvnoncat.h5", "./data/test_catvnoncat.h5")
