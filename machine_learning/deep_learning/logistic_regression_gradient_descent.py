@@ -33,8 +33,17 @@ class LogisticRegressionGD:
     A simple implementation of Logistic Regression using Gradient Descent.
     """
 
+    """
+    A simple implementation of Logistic Regression using Gradient Descent.
+    """
+
     def __init__(
-        self, learning_rate=0.01, num_iterations=1000, scale_range=(0, 1), batch_size=1
+        self,
+        learning_rate=0.01,
+        num_iterations=1000,
+        scale_range=(0, 1),
+        batch_size=1,
+        activation="relu",
     ):
         """
         Initializes a Logistic Regression model using Gradient Descent for optimization.
@@ -44,8 +53,7 @@ class LogisticRegressionGD:
         num_iterations (int): The number of iterations the model will go through during training.
         scale_range (tuple): The range to which the features will be normalized.
         batch_size (int): The number of samples to be passed through the model at once during training.
-        This can be adjusted depending on the size of the dataset and memory limitations.
-
+        activation (str): The activation function to use. Options: 'sigmoid', 'tanh', 'relu', 'leaky_relu'.
         """
         self.learning_rate = learning_rate
         self.num_iterations = num_iterations
@@ -53,20 +61,53 @@ class LogisticRegressionGD:
         self.bias = None
         self.scale_range = scale_range
         self.batch_size = batch_size
+        self.activation = activation
 
-    def _sigmoid(self, x):
+    def _activation_function(self, x):
         """
-        Computes the sigmoid function, which is used as the activation function in this Logistic Regression model. The
-        sigmoid function squashes input values to a range between 0 and 1, which can be interpreted as the probability
-        of the positive class in a binary classification task.
+        Computes the activation function based on the user's choice during the class initialization.
 
         Args:
-        x (float): The input to the sigmoid function.
+        x (float): The input to the activation function.
 
         Returns:
-        float: The output of the sigmoid function, a value between 0 and 1.
+        float: The output of the activation function.
         """
-        return 1 / (1 + np.exp(-x))
+        if self.activation == "sigmoid":
+            # Sigmoid activation function takes a real-valued number and squashes it into range between 0 and 1.
+            # In the context of neural networks, it is mainly used in the output layer for binary classifiers,
+            # where we interpret the output as the probability of the positive class.
+            return 1 / (1 + np.exp(-x))
+
+        elif self.activation == "tanh":
+            # The hyperbolic tangent function, or tanh for short, maps a real-valued number to the range between -1 and 1.
+            # It is similar to the sigmoid but better because it is zero-centered (making it easier for the weights to adjust).
+            # However, tanh also has the vanishing gradients problem: for inputs with large absolute value, the function saturates at -1 or 1,
+            # leading to a very small gradient and slow learning during backpropagation.
+            exp_x = np.exp(x)
+            exp_minus_x = np.exp(-x)
+            return (exp_x - exp_minus_x) / (exp_x + exp_minus_x)
+
+        elif self.activation == "relu":
+            # The ReLU (Rectified Linear Unit) function is often used in the hidden layers of a neural network.
+            # It's a piecewise linear function that outputs the input directly if it is positive, otherwise, it outputs zero.
+            # It has become the default activation function for many types of neural networks because a model that uses it is
+            # easier to train and often achieves better performance.
+            # The gradient of ReLU for positive inputs is always 1 and for negative inputs, it is 0. This helps to mitigate
+            # the vanishing gradient problem, although it does introduce a new issue called the dying ReLU problem where some
+            # neurons effectively die, meaning they stop learning and only output 0.
+            return np.array([xi if xi >= 0 else 0 for xi in x])
+
+        elif self.activation == "leaky_relu":
+            # The Leaky ReLU function is a variant of ReLU. Instead of having 0 gradient for negative inputs, it has a small
+            # negative slope (e.g. 0.01). This means that neurons in the model are less likely to die and can continue learning,
+            # making it useful for models that suffer from reduced learning over time.
+            # However, in practice, whether ReLU or Leaky ReLU performs better would depend on the specific dataset and problem.
+            # It's often recommended to start with ReLU and only switch to Leaky ReLU if you are experiencing issues with model learning.
+            return np.array([xi if xi >= 0 else 0.01 * xi for xi in x])
+
+        else:
+            raise ValueError(f"Unknown activation function: {self.activation}")
 
     def flatten(self, X):
         """
@@ -179,7 +220,7 @@ class LogisticRegressionGD:
             for X_batch, y_batch in self._generate_batches(X, y):
                 num_samples = X_batch.shape[0]
                 linear_model = np.dot(X_batch, self.weights) + self.bias
-                y_predicted = self._sigmoid(linear_model)
+                y_predicted = self._activation_function(linear_model)
 
                 dw = (1 / num_samples) * np.dot(X_batch.T, (y_predicted - y_batch))
                 db = (1 / num_samples) * np.sum(y_predicted - y_batch)
@@ -201,7 +242,7 @@ class LogisticRegressionGD:
         X = self.flatten(X)
         X = self.normalize(X)
         linear_model = np.dot(X, self.weights) + self.bias
-        y_predicted = self._sigmoid(linear_model)
+        y_predicted = self._activation_function(linear_model)
         y_predicted_classes = (y_predicted > 0.5).astype(int)
 
         print(
@@ -270,7 +311,9 @@ class LogisticRegressionGD:
 
 
 def main():
-    model = LogisticRegressionGD(learning_rate=0.01, num_iterations=1000, batch_size=32)
+    model = LogisticRegressionGD(
+        learning_rate=0.01, num_iterations=1000, batch_size=32, activation="tanh"
+    )
 
     X_train, X_test, y_train, y_test = model.load_h5(
         "./data/train_catvnoncat.h5", "./data/test_catvnoncat.h5"
