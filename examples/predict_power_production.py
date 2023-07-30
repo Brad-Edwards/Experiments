@@ -27,7 +27,7 @@ from sklearn.preprocessing import StandardScaler, PolynomialFeatures
 # The point of this example is to show how to use the LinearRegression model from scikit-learn to perform regression,
 # and to show how much easier, faster, and less error-prone it is to do this way instead of with a custom implementation.
 
-data = pd.read_csv("CCPP_data.csv")
+data = pd.read_csv("./data/CCPP_data.csv")
 
 features = data.drop(columns=["PE"])
 target = data["PE"]
