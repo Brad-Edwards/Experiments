@@ -1,3 +1,3 @@
-# minimal_intelligence
+# Science
 
-Just a collection of random stuff from my AI journey.
+Code in different areas of I'm curious about.
