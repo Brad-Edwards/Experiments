@@ -1,4 +1,4 @@
-# This file contains a simple implementation of the Word2vec Skim-Gram model from scratch.
+# This file contains a simple implementation of the Word2vec Skip-Gram model from scratch.
 #
 # Copyright (c) 2023 Brad Edwards
 # Permission is hereby granted, free of charge, to any person obtaining a copy
